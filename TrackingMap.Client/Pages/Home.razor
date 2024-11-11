@@ -1,0 +1,48 @@
+﻿@page "/"
+
+@rendermode InteractiveWebAssembly
+@using TrackingMap.Components.Models
+
+<div>
+	<p>
+		<label for="organization">Select Organization:</label>
+		<select id="organization" @onchange="SelectOrganization">
+			@if (_organizationList == null || _organizationList.Count == 0)
+			{
+				<option value="no_value">Not found  Organization</option>
+			}
+			else
+			{
+				@foreach (var org in _organizationList)
+				{
+					<option value="@org.Organization">@org.Organization</option>
+				}
+
+			}
+		</select>
+	</p>
+</div>
+
+@code {
+	//@rendermode InteractiveServer
+	private List<InfluxConnectionData> _organizationList = [];
+
+	protected override async Task OnInitializedAsync()
+	{
+		//_organizationList = InfluxInfoService.GetAllInfluxServices();
+		//InfluxInfoService.SetCurrentInfluxService(_organizationList[0].Organization);
+	}
+
+	private void SelectOrganization(ChangeEventArgs e)
+	{
+		/*
+		Console.WriteLine("SelectOrganization!!!");
+		if (e is not null && e.Value.ToString().Length > 0)
+		{
+			InfluxInfoService.SetCurrentInfluxService(e.Value.ToString());
+		}
+		*/
+	}
+
+
+}

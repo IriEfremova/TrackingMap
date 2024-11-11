@@ -1,0 +1,75 @@
+﻿@page "/report"
+@using TrackingMap.Components.Models
+@using TrackingMap.Client.Services
+@rendermode InteractiveWebAssembly
+@inject IInfluxService InfluxService
+@inject IInfluxInfoService InfluxInfoService
+
+<div>
+    <p>
+        <label for="organization">Select Organization:</label>
+        <select id="organization" @bind="@organization">
+            @foreach (var org in _organizationList)
+            {
+                <option value="@org.Organization">@org.Organization</option>
+            }
+        </select>
+    </p>
+    <p>
+        <label for="startdate">Select Start Date: </label>
+        <input type="datetime-local" id="startdate" @bind="@startDate"/>
+    </p>
+    <p>
+        <label for="enddate">Select End Date: </label>
+        <input type="datetime-local" id="enddate" @bind="@endDate" />
+    </p>
+    <p>
+        <label for="imei">Input IMEI: </label>
+        <input type="text" id="imei" value="@imei"/>
+    </p>
+    <p>
+        <label for="timezone">Select Time Zone:</label>
+        <select id="timezone" >
+            @foreach (TimeZoneInfo zone in TimeZoneInfo.GetSystemTimeZones())
+            {
+                <option value="@zone.Id">@zone.Id</option>
+            }
+        </select>
+    </p>
+    <button @onclick="CreateReport">Create report(.xlsx)</button>
+</div>
+
+@code {
+    private List<InfluxConnectionData> _organizationList = [];
+    private string imei = "";
+    private string organization = "";
+    DateTime startDate = DateTime.Now;
+    DateTime endDate = DateTime.Now;
+    TimeZoneInfo timeZone = TimeZoneInfo.Local;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _organizationList = InfluxInfoService.GetAllInfluxServices();
+        //InfluxInfoService.SetCurrentInfluxService(_organizationList[0].Organization);
+        //organization = _organizationList[0].Organization;
+        Console.WriteLine("OnInitializedAsync!!!" + _organizationList.Count);
+    }
+
+    private void SelectOrganization(ChangeEventArgs e)
+    {
+        if (e is not null && e.ToString().Length > 0)
+        {
+            InfluxInfoService.SetCurrentInfluxService(e.ToString());
+        }
+    }
+
+    private async void CreateReport()
+    {
+        //int msg = await InfluxService.GetTest();
+        Console.WriteLine("CreateReport!!!");
+        Dictionary<String, Dictionary<String, Double>> data = await InfluxService.GetDataForReport();
+        //Console.WriteLine("CreateReport = " + msg);
+    }
+
+
+}

@@ -1,0 +1,33 @@
+﻿@page "/counter"
+@inject IJSRuntime JS
+@rendermode InteractiveWebAssembly
+
+<div id="map" style="width: 100%; height: 400px; position:center"></div>  
+
+
+
+@code {
+    private string? result;
+
+
+     protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Console.WriteLine("OnAfterRenderAsync!!!!!!!");
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initNavigationMap");
+            StateHasChanged();
+        }
+    }
+
+    
+
+    public async void ShowPrompt()
+    {
+        Console.WriteLine("ShowPromptQQQQ");
+        result = await JS.InvokeAsync<string>(
+    "showPrompt", "What's your name?");
+        StateHasChanged();
+    }
+
+}
