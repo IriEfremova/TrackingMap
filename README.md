@@ -11,5 +11,6 @@
 4 серверная часть отвечает за соединение с InfluxDB и получения из нее данных (для отчета или карты)
 
 ![Снимок экрана (14)](https://github.com/user-attachments/assets/4d371bc7-68e1-4a6a-b620-a39ce232108c)
-![Uploading Снимок экрана (13).png…]()
 
+
+![Снимок экрана (13)](https://github.com/user-attachments/assets/bb2b4867-41a1-4c9d-8f0f-a66f2572164a)
