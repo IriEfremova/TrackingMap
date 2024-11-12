@@ -1,6 +1,12 @@
+using InfluxDB.Client.Api.Domain;
+using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Linq;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using TrackingMap.Client.Pages;
 using TrackingMap.Client.Services;
 using TrackingMap.Components;
+using TrackingMap.Components.Models;
 using TrackingMap.Components.Pages;
 using TrackingMap.Components.Services;
 
@@ -34,7 +40,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapGet("/api/report/", (IInfluxService influxService, IInfluxInfoService influxInfoService) =>
+app.MapPost("/api/data/", (IInfluxService influxService, InfluxConnectionData data) =>
+{
+    Console.WriteLine("MapPost = " + data.ToString());
+    influxService.SetConnectionData(data);
+});
+
+app.MapGet("/api/report/", (IInfluxService influxService) =>
 {
     return influxService.GetDataForReport();
 });

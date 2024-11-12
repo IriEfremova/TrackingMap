@@ -52,7 +52,6 @@
         _organizationList = InfluxInfoService.GetAllInfluxServices();
         //InfluxInfoService.SetCurrentInfluxService(_organizationList[0].Organization);
         //organization = _organizationList[0].Organization;
-        Console.WriteLine("OnInitializedAsync!!!" + _organizationList.Count);
     }
 
     private void SelectOrganization(ChangeEventArgs e)
@@ -66,7 +65,8 @@
     private async void CreateReport()
     {
         //int msg = await InfluxService.GetTest();
-        Console.WriteLine("CreateReport!!!");
+        Console.WriteLine("Report CreateReport=" + InfluxInfoService.GetCurrentInfluxService().Bucket);
+        await InfluxService.SetConnectionData(InfluxInfoService.GetCurrentInfluxService());
         Dictionary<String, Dictionary<String, Double>> data = await InfluxService.GetDataForReport();
         //Console.WriteLine("CreateReport = " + msg);
     }

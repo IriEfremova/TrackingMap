@@ -1,7 +1,9 @@
 ﻿@page "/"
 
 @rendermode InteractiveWebAssembly
+@using TrackingMap.Client.Services
 @using TrackingMap.Components.Models
+@inject IInfluxInfoService InfluxInfoService
 
 <div>
 	<p>
@@ -29,8 +31,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		//_organizationList = InfluxInfoService.GetAllInfluxServices();
-		//InfluxInfoService.SetCurrentInfluxService(_organizationList[0].Organization);
+		_organizationList = await InfluxInfoService.GetInfluxServersList();
 	}
 
 	private void SelectOrganization(ChangeEventArgs e)

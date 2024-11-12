@@ -14,7 +14,8 @@
 
 @code {
     private string? result;
-    Dictionary<DateTime, PointModel> data;
+    private InfluxConnectionData _connectionData;
+    Dictionary<DateTime, PointModel>? data;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -23,17 +24,26 @@
             await JS.InvokeVoidAsync("initNavigationMap");
         }
 
-        //Dictionary<Instant, PointModel> data = await InfluxService.GetDataForMap();
+        if (InfluxInfoService.GetCurrentInfluxService().Token.Length == 0)
+            await InfluxInfoService.GetInfluxServersList();
+
+        _connectionData = InfluxInfoService.GetCurrentInfluxService();
+        await InfluxService.SetConnectionData(_connectionData);
         data = await InfluxService.GetDataForMap();
         Console.WriteLine("OnAfterRenderAsync record = " + data.Count);
+        /*
         foreach (var p in data)
         {
             Console.WriteLine($"Data key: {p.Key.ToString()}  value: {p.Value}");
         }
+        */
     }
 
     public async void ShowPrompt()
     {
+        if (data == null || data.Count <= 0)
+            return;
+
         PointModel[] points = new PointModel[data.Count];
         int i = 0;
         foreach (var p in data)
@@ -42,18 +52,6 @@
             ++i;
         }
         Console.WriteLine("POINT COUNT = " + points.Length);
-        //JS.InvokeAsync<Foo>("bar", new object[] { array });
         await JS.InvokeVoidAsync("showPrompt", new object[] { points });
-
-        /*
-        await JS.InvokeVoidAsync("showPrompt", (object)new PointModel[] {
-                                new PointModel(37.64, 37.64),
-                               new PointModel(49.64, 27.64) });
-                        
-         */
-
-        //await JS.InvokeVoidAsync("showPrompt", new PointModel(37.64, 37.64));
-        //await JS.InvokeVoidAsync("showPrompt", arr1);
-        //StateHasChanged();
     }
 }

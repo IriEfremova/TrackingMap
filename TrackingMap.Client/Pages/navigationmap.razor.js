@@ -88,7 +88,4 @@ function showPrompt(arrayCoordinates) {
 
     navMap.geoObjects.add(polyline);
 }
-function showPrompt1() {
-    alert("jsgjsjgj");
-}
 

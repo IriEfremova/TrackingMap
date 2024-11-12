@@ -8,41 +8,38 @@ namespace TrackingMap.Components.Services
 {
     public class ServerInfluxService : IInfluxService
     {
+        private InfluxConnectionData _connectionData;
+        public async Task SetConnectionData(InfluxConnectionData connectionData)
+        {
+            _connectionData = connectionData;
+        }
+
         public async Task<Dictionary<DateTime, PointModel>> GetDataForMap()
         {
             Dictionary<DateTime, PointModel> coordDict = [];
 
-            Console.WriteLine("InfluxService GetDataForMap");
-            InfluxConnectionData connectionData = new InfluxConnectionData();
-            /*
-            string host = connectionData.Host;
-            string token = connectionData.Token;
-            string organization = connectionData.Organization;
-            string bucket = connectionData.Bucket;
-            */
-            const string host = "http://5.2.39.199:8086";
-            const string token = "p2TJ3ZIErklEF87E80yM5bKkE4AyINPIRTY_rbz41xhLPjnoqADigr2Krv_4sr5vitRn_nelfhW5qHBJn3SSfw==";
-            string organization = "haultrac";
-            string bucket = "company-1";
+            if (_connectionData == null)
+            {
+                return [];
+            }
 
-            using var client = new InfluxDBClient(host, token: token);
+
+            Console.WriteLine("ServerInfluxService GetDataForMap = " + _connectionData.ToString());
+
+            using var client = new InfluxDBClient(_connectionData.Host, token: _connectionData.Token);
             try
             {
                 var flux = "from(bucket: \"{0:C0}\") |> range(start: 2024-05-29T04:00:00Z, stop: 2024-05-29T04:30:00Z) " +
-                   "|> filter(fn: (r) => r[\"_measurement\"] == \"869101051668305\")" +
+                   "|> filter(fn: (r) => r[\"_measurement\"] == \"77777\")" +
                    " |> filter(fn: (r) => r[\"type\"] == \"gps\") |> filter(fn: (r) => r[\"_field\"] == \"lat\"" +
                    " or r[\"_field\"] == \"lon\")" +
                    " |> sort(columns: [\"time\"])";
-                String fluxQuery = String.Format(flux, bucket);
+                String fluxQuery = String.Format(flux, _connectionData.Bucket);
                 Console.WriteLine("fluxQuery = " + fluxQuery);
 
-                var tables = await client.GetQueryApi().QueryAsync<InfluxDBRecord>(fluxQuery, organization);
+                var tables = await client.GetQueryApi().QueryAsync<InfluxDBRecord>(fluxQuery, _connectionData.Organization);
                 Console.WriteLine("List = " + tables.Count);
                 client.Dispose();
-
-                //PointModel pointModel1 = new();
-                //coordDict.Add(tables[0].time.ToDateTimeUtc(), pointModel1);
-                //return coordDict;
 
                 foreach (var record in tables)
                 {
@@ -93,30 +90,23 @@ namespace TrackingMap.Components.Services
 
         public async Task<Dictionary<String, Dictionary<String, Double>>> GetDataForReport()
         {
-            InfluxConnectionData connectionData = new InfluxConnectionData();
-            Console.WriteLine("InfluxService CreateReport");
-            /*
-            string host = connectionData.Host;
-            string token = connectionData.Token;
-            string organization = connectionData.Organization;
-            string bucket = connectionData.Bucket;
-            */
-            const string host = "http://5.2.39.199:8086";
-            const string token = "p2TJ3ZIErklEF87E80yM5bKkE4AyINPIRTY_rbz41xhLPjnoqADigr2Krv_4sr5vitRn_nelfhW5qHBJn3SSfw==";
-            string organization = "haultrac";
-            string bucket = "company-1";
+            //InfluxConnectionData connectionData = new InfluxConnectionData();
+            if (_connectionData == null)
+                return [];
 
-            using var client = new InfluxDBClient(host, token: token);
+            Console.WriteLine("ServerInfluxService CreateReport = " + _connectionData.ToString());
+
+            using var client = new InfluxDBClient(_connectionData.Host, token: _connectionData.Token);
             try
             {
                  var flux = "from(bucket: \"{0:C0}\") |> range(start: 2024-05-25T04:00:00Z, stop: 2024-05-29T04:10:00Z) " +
-                    "|> filter(fn: (r) => r[\"_measurement\"] == \"869101051668305\")" +
+                    "|> filter(fn: (r) => r[\"_measurement\"] == \"77777\")" +
                     " |> filter(fn: (r) => r[\"type\"] == \"tech_data\") |> filter(fn: (r) => r[\"_field\"] == \"accelerator_2\"" +
                     " or r[\"_field\"] == \"accelerator_1\" or r[\"_field\"] == \"accelerator_0\")";
-                String fluxQuery = String.Format(flux, bucket);
+                String fluxQuery = String.Format(flux, _connectionData.Bucket);
                 Console.WriteLine("fluxQuery = " + fluxQuery);
 
-                var tables = await client.GetQueryApi().QueryAsync<InfluxDBRecord>(fluxQuery, organization);
+                var tables = await client.GetQueryApi().QueryAsync<InfluxDBRecord>(fluxQuery, _connectionData.Organization);
                 Console.WriteLine("List = " + tables.Count);
                 client.Dispose();
                 return [];

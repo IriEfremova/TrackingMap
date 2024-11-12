@@ -1,4 +1,6 @@
 ﻿using TrackingMap.Components.Models;
+using System.Net.Http.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace TrackingMap.Client.Services
 {
@@ -7,23 +9,29 @@ namespace TrackingMap.Client.Services
         public List<InfluxConnectionData> GetAllInfluxServices();
         public InfluxConnectionData GetCurrentInfluxService();
         public void SetCurrentInfluxService(string CompanyName);
-    }
+        public Task<List<InfluxConnectionData>> GetInfluxServersList();
+
+	}
 
     public class InfluxInfoService : IInfluxInfoService
     {
         private readonly List<InfluxConnectionData> _connectionList;
         private InfluxConnectionData? _currentConnection = null;
+        private IConfiguration _configuration;
 
         public InfluxInfoService(IConfiguration configuration)
         {
-            Console.WriteLine("InfluxInfoService Constuctor");
+            this._configuration = configuration;
+            Console.WriteLine("InfluxInfoService Constructor");
 
             _connectionList = [];
+        }
 
-            IConfigurationSection configSection = configuration.GetSection("InfluxServers");
+        public void initInfluxServicesList()
+        {
+            IConfigurationSection configSection = _configuration.GetSection("InfluxServers");
             foreach (var section in configSection.GetChildren())
             {
-                Console.WriteLine("InfluxInfoService Constuctor = " + section.Key);
                 InfluxConnectionData data = new();
                 foreach (var subsection in section.GetChildren())
                 {
@@ -37,11 +45,24 @@ namespace TrackingMap.Client.Services
                     }
                 }
                 if (data.isCorrect())
+                {
                     _connectionList.Add(data);
-            }
+					Console.WriteLine("Influx Server = " + data.ToString());
+				}
 
-            if (_connectionList.Count > 0)
-                _currentConnection = _connectionList[0];
+            }
+        }
+
+
+		public async Task<List<InfluxConnectionData>> GetInfluxServersList()
+        {
+            if (_connectionList.Count <= 0)
+            {
+                await Task.Run(() => initInfluxServicesList());
+				if (_connectionList.Count > 0)
+					_currentConnection = _connectionList[0];
+			}
+			return _connectionList;
         }
 
         public List<InfluxConnectionData> GetAllInfluxServices()
@@ -65,6 +86,6 @@ namespace TrackingMap.Client.Services
                 }
                 ++num;
             }
-        }
+        } 
     }
 }

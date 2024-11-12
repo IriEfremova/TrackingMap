@@ -7,7 +7,7 @@
 
         public override string ToString()
         {
-            return "Lat = " + Latitude + " Lon = " + Longitude;
+            return "Latitude = " + Latitude + " Longitude = " + Longitude;
         }
     }
 }
